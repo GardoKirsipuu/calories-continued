@@ -88,6 +88,10 @@ const ItemCtrl = (function(){
 			data.items.push(newItem)
 			return newItem
 		},
+		updateItem: function(id, updatedName, updatedCalories){
+			data.items[id].name = updatedName
+			data.items[id].calories = updatedCalories
+		},
 		getTotalCalories: function(){
 			let total = 0;
 			// loop through items and add calories
@@ -96,7 +100,6 @@ const ItemCtrl = (function(){
 			});
 			// set toal calories in data structure
 			data.total = total;
-			console.log(data.total)
 			// return total
 			return data.total;
 		},
@@ -119,7 +122,8 @@ const UICtrl = (function(){
 		clearBtn: '.clear-btn',
 		editBtns: '.edit-btns',
 		backBtn: '.back-btn',
-		deleteBtn: '.del-btn'
+		deleteBtn: '.del-btn',
+		updateBtn: '.update-btn'
 	}
 
 	return {
@@ -212,6 +216,8 @@ const App = (function(ItemCtrl, StorageCtrl, UICtrl){
 		document.querySelector(UISelectors.backBtn).addEventListener('click', UICtrl.backUI)
 		// delete event
 		document.querySelector(UISelectors.deleteBtn).addEventListener('click', deleteItem)
+		// update item
+		document.querySelector(UISelectors.updateBtn).addEventListener('click', updateItem)
 	}
 	// add item submit
 	const itemAddSubmit = function(event){
@@ -249,20 +255,48 @@ const App = (function(ItemCtrl, StorageCtrl, UICtrl){
 		// populate items list
 		UICtrl.populateItemList(items)
 	}
+	// delete item 
 	const deleteItem = function(){
+		// get all items
 		const items = ItemCtrl.getItems()
-		const selectemItem = ItemCtrl.getCurrentItem()
+		// get selected item
+		const selectedItem = ItemCtrl.getCurrentItem()
+		// clear items list
 		ItemCtrl.clearItems()
-		const newItems = []
+		// add back items except selected item
 		items.forEach(item => {
 			if(item.id != selectedItem.id)
 				ItemCtrl.addItem(item.name, item.calories)
 		})
+		// clear LS and add new list to LS
 		StorageCtrl.clearLS()
 		ItemCtrl.getItems().forEach(item => {
 			StorageCtrl.storeItem(item)
 		})
+		// put new items in UI
 		UICtrl.populateItemList(ItemCtrl.getItems())
+		// back out of editing UI
+		UICtrl.backUI()
+	}
+	// edit item
+	const updateItem = function(){
+		// get selected item
+		const selectedItem = ItemCtrl.getCurrentItem()
+		// get updated values
+		const newItem = UICtrl.getItemInput()
+		// update item in items list
+		ItemCtrl.updateItem(selectedItem.id, newItem.name, parseInt(newItem.calories))
+		// get updated list from item controller
+		const updatedList = ItemCtrl.getItems()
+		// update UI with new list items
+		UICtrl.populateItemList(updatedList)
+		UICtrl.showTotalCalories(ItemCtrl.getTotalCalories())
+		// update LS with new items
+		StorageCtrl.clearLS()
+		updatedList.forEach(item => {
+			StorageCtrl.storeItem(item)
+		})
+		// back out of editing UI
 		UICtrl.backUI()
 	}
 
