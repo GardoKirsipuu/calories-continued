@@ -209,7 +209,7 @@ const App = (function(ItemCtrl, StorageCtrl, UICtrl){
 		// add document reload event
 		document.addEventListener('DOMContentLoaded', getItemsFromStorage)
 		// clear all event
-		document.querySelector(UISelectors.clearBtn).addEventListener('click', deleteItem)
+		document.querySelector(UISelectors.clearBtn).addEventListener('click', clearItems)
 		// edit event
 		document.querySelector(UISelectors.itemList).addEventListener('click', UICtrl.editItems)
 		// back event
@@ -255,6 +255,12 @@ const App = (function(ItemCtrl, StorageCtrl, UICtrl){
 		// populate items list
 		UICtrl.populateItemList(items)
 	}
+	// clear all items
+	const clearItems = function(){
+		UICtrl.clearUI()
+		ItemCtrl.clearItems()
+		StorageCtrl.clearLS()
+	}
 	// delete item 
 	const deleteItem = function(){
 		// get all items
@@ -298,6 +304,7 @@ const App = (function(ItemCtrl, StorageCtrl, UICtrl){
 		})
 		// back out of editing UI
 		UICtrl.backUI()
+		event.preventDefault()
 	}
 
 	return {
